@@ -1,1 +1,1 @@
-# GoImageZip
+# GoImageResizer
