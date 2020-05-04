@@ -1,8 +1,10 @@
 package infrastrature
 
 import (
+	"GoImageZip/internal/app"
 	"GoImageZip/internal/interfaces"
 	"encoding/json"
+	"fmt"
 	"github.com/mediocregopher/radix/v3"
 	"sync"
 )
@@ -14,7 +16,7 @@ type RedisHandler struct {
 	mu   sync.Mutex
 }
 
-// todo comment
+// NewRedisConnector creates new instance of db conn
 func NewRedisConnector(addr, password string, db int) (*RedisHandler, error) {
 	pool, err := radix.Dial("tcp", addr, radix.DialSelectDB(db))
 	if err != nil {
@@ -24,25 +26,33 @@ func NewRedisConnector(addr, password string, db int) (*RedisHandler, error) {
 	return &RedisHandler{conn: pool}, nil
 }
 
-
-// todo comment
+// Create sreates a data in store
 func (rh *RedisHandler) Create(image interfaces.Image) error {
+	b, err := json.Marshal(image)
+	if err != nil {
+		return fmt.Errorf("%s: %s", app.ErrStore, err)
+	}
+
 	rh.mu.Lock()
-
-	b, _ := json.Marshal(image)
-
-	err := rh.conn.Do(radix.FlatCmd(nil, "HSET", LINKS, image.Id, string(b)))
+	err = rh.conn.Do(radix.FlatCmd(nil, "HSET", LINKS, image.Id, string(b)))
 	rh.mu.Unlock()
-	return err
+	if err != nil {
+		return fmt.Errorf("%s: %s", app.ErrStore, err)
+	}
+
+	return nil
 }
 
-// todo comment
+// GetAllItems requests all data to store
 func (rh *RedisHandler) GetAllItems() ([]interfaces.Image, error) {
 	m := make(map[string]string)
 
 	rh.mu.Lock()
 	err := rh.conn.Do(radix.FlatCmd(&m, "HGETALL", LINKS))
 	rh.mu.Unlock()
+	if err != nil {
+		return nil, fmt.Errorf("%s: %s", app.ErrStore, err)
+	}
 
 	res := make([]interfaces.Image, 0, len(m))
 
@@ -51,25 +61,31 @@ func (rh *RedisHandler) GetAllItems() ([]interfaces.Image, error) {
 
 		err := json.Unmarshal([]byte(value), &r)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%s: %s", app.ErrStore, err)
 		}
 
 		res = append(res, r)
 	}
 
-	return res, err
+	return res, nil
 }
 
-// todo comment
+// GetById requests data by id to store
 func (rh *RedisHandler) GetById(id string) (interfaces.Image, error) {
 	rh.mu.Lock()
 
 	var s string
 	err := rh.conn.Do(radix.FlatCmd(&s, "HGET", LINKS, id))
 	rh.mu.Unlock()
+	if err != nil {
+		return interfaces.Image{}, fmt.Errorf("%s: %s", app.ErrStore, err)
+	}
 
 	var image interfaces.Image
 	err = json.Unmarshal([]byte(s), &image)
+	if err != nil {
+		return interfaces.Image{}, fmt.Errorf("%s: %s", app.ErrStore, err)
+	}
 
 	return interfaces.Image{
 		Id:         image.Id,
@@ -77,5 +93,5 @@ func (rh *RedisHandler) GetById(id string) (interfaces.Image, error) {
 		ResizedUrl: image.ResizedUrl,
 		Width:      image.Width,
 		Height:     image.Height,
-	}, err
+	}, nil
 }

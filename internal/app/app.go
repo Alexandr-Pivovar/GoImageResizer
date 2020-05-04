@@ -9,9 +9,9 @@ import (
 )
 
 var (
-	ErrCould = errors.New("cloud error")
+	ErrCould  = errors.New("cloud error")
 	ErrResize = errors.New("resize error")
-	ErrStore = errors.New("store error")
+	ErrStore  = errors.New("store error")
 	ErrDecode = errors.New("decode error")
 )
 
@@ -34,7 +34,7 @@ type Clouder interface {
 //go:generate mockery -name ResizeServicer -case underscore
 // ImageRepository interface present interface for income requests
 type ResizeServicer interface {
-	Resize(domain.Image) (domain.ImageInfo,error)
+	Resize(domain.Image) (domain.ImageInfo, error)
 	Update(domain.ImageInfo) (domain.ImageInfo, error)
 	GetById(string) (domain.ImageInfo, error)
 	GetHistory() ([]domain.ImageInfo, error)
@@ -61,6 +61,9 @@ func NewImageService(repo ImageRepository, resizer Resizer, cloud Clouder) *Imag
 	}
 	if resizer == nil || reflect.ValueOf(resizer).IsNil() {
 		panic("resizer param is nil")
+	}
+	if cloud == nil || reflect.ValueOf(cloud).IsNil() {
+		panic("cloud param is nil")
 	}
 
 	return &ImageService{
@@ -92,7 +95,7 @@ func (is ImageService) Resize(image domain.Image) (ii domain.ImageInfo, err erro
 	if err != nil {
 		return ii, err
 	}
-	
+
 	resizedUrl, err := is.cloud.Save(id, resizedImg)
 	if err != nil {
 		return ii, err

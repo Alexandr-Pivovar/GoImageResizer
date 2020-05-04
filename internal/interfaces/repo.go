@@ -18,16 +18,15 @@ type Image struct {
 	Height     uint   `json:"height"`
 }
 
-//
 type RedisRepo struct {
-	dbHandler  DbHandler
+	dbHandler DbHandler
 }
 
 func NewRedisRepo(db DbHandler) *RedisRepo {
 	return &RedisRepo{dbHandler: db}
 }
 
-// todo comment
+// GetHistory requests history and prepare data for app layer
 func (us RedisRepo) GetHistory() ([]domain.ImageInfo, error) {
 	items, err := us.dbHandler.GetAllItems()
 	if err != nil {
@@ -50,30 +49,29 @@ func (us RedisRepo) GetHistory() ([]domain.ImageInfo, error) {
 	return imagesInfo, nil
 }
 
-// todo comment
+// Create prepares a data for dbHandler
 func (us RedisRepo) Create(image domain.ImageInfo) error {
-	i := Image{
-		Id: image.Id,
-		Height: image.Height,
-		Width: image.Width,
-		OriginUrl: image.OriginUrl,
-		ResizedUrl: image.ResizedUrl,
-	}
-	return us.dbHandler.Create(i)
-}
-
-// todo comment
-func (us RedisRepo) Update(image domain.ImageInfo) error {
 	return us.dbHandler.Create(Image{
-		Id: image.Id,
-		Height: image.Height,
-		Width: image.Width,
-		OriginUrl: image.OriginUrl,
+		Id:         image.Id,
+		Height:     image.Height,
+		Width:      image.Width,
+		OriginUrl:  image.OriginUrl,
 		ResizedUrl: image.ResizedUrl,
 	})
 }
 
-// todo comment
+// Update prepares a data for dbHandler
+func (us RedisRepo) Update(image domain.ImageInfo) error {
+	return us.dbHandler.Create(Image{
+		Id:         image.Id,
+		Height:     image.Height,
+		Width:      image.Width,
+		OriginUrl:  image.OriginUrl,
+		ResizedUrl: image.ResizedUrl,
+	})
+}
+
+// GetById requests image by id and prepare data for app layer
 func (us RedisRepo) GetById(id string) (domain.ImageInfo, error) {
 	image, err := us.dbHandler.GetById(id)
 	if err != nil {

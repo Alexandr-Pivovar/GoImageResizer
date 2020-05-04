@@ -1,6 +1,7 @@
 package infrastrature
 
 import (
+	"GoImageZip/internal/app"
 	"GoImageZip/internal/domain"
 	"bytes"
 	"fmt"
@@ -17,33 +18,38 @@ type AWSConnector struct {
 	url        string
 }
 
+// GetImage requests data by url
 func (AWSConnector) GetImage(url string) ([]byte, error) {
 	r, err := http.Get(url)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %s", app.ErrCould, err)
 	}
 	defer func() {
 		err := r.Body.Close()
 		log.Error(err)
 	}()
 
-	return ioutil.ReadAll(r.Body)
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %s", app.ErrCould, err)
+	}
+
+	return b, nil
 }
 
 // Save saves input file to aws and return url for to download this file
-// returns error if PutObject returns error
-// Input example: `name:{1.txt},dataUrl:{data:text/plain;base64,MQ==}`
-// Where is name - filename with extension, dataUrl - file body in dataURL format
-func (a AWSConnector) Save(id string,image domain.Image) (string, error) {
+func (a AWSConnector) Save(id string, image domain.Image) (string, error) {
 	_, err := a.awsSession.PutObject(&s3.PutObjectInput{
 		Body:   bytes.NewReader(image.Data),
 		Bucket: a.bucket,
 		Key:    aws.String(id),
 	})
+	if err != nil {
+		return "", fmt.Errorf("%s: %s", app.ErrCould, err)
+	}
 
-	return a.url + "/" + id + "." + image.Format, err
+	return a.url + "/" + id + "." + image.Format, nil
 }
-
 
 // NewAWSConnector is constructor, receives aws session, bucket and aws url,
 //// calls Panic when one of the param not valid
@@ -54,4 +60,3 @@ func NewAWSConnector(awsSession *s3.S3, bucket string, url string) *AWSConnector
 		url:        fmt.Sprintf(`https://%s.%s`, bucket, url),
 	}
 }
-

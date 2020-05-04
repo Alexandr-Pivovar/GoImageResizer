@@ -5,6 +5,7 @@ import (
 	"GoImageZip/internal/domain"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type ResizeParam struct {
@@ -53,13 +54,13 @@ func (c Controller) Run(addr string) {
 	e.Logger.Fatal(e.Start(addr))
 }
 
-// todo comment
+// Resize handles income a resize request
 func (c Controller) Resize(ctx echo.Context) error {
 	r := &ResizeImg{}
 	err := ctx.Bind(r)
 	if err != nil {
 		fmt.Println(err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	imageInfo, err := c.app.Resize(domain.Image{
@@ -72,7 +73,7 @@ func (c Controller) Resize(ctx echo.Context) error {
 	})
 	if err != nil {
 		fmt.Println(err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	res := ResizeImgResp{
@@ -87,11 +88,11 @@ func (c Controller) Resize(ctx echo.Context) error {
 	return ctx.JSON(200, res)
 }
 
-// todo comment
+// GetHistory handles income a history request
 func (c Controller) GetHistory(ctx echo.Context) error {
 	images, err := c.app.GetHistory()
 	if err != nil {
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	r := make(map[string]ResizeImgResp, len(images))
@@ -109,16 +110,16 @@ func (c Controller) GetHistory(ctx echo.Context) error {
 	return ctx.JSON(200, r)
 }
 
-// todo comment
+// GetById handles income a get image by id request
 func (c Controller) GetById(ctx echo.Context) error {
 	id := ctx.Param("id")
 	if id == "" {
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "empty id parameter")
 	}
 
 	image, err := c.app.GetById(id)
 	if err != nil {
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	r := ResizeImgResp{
@@ -133,13 +134,13 @@ func (c Controller) GetById(ctx echo.Context) error {
 	return ctx.JSON(200, r)
 }
 
-// todo comment
+// Update handles income a update image by id request
 func (c Controller) Update(ctx echo.Context) error {
 	u := &UpdateImg{}
 	err := ctx.Bind(u)
 	if err != nil {
 		fmt.Println(err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	image, err := c.app.Update(domain.ImageInfo{
@@ -150,7 +151,7 @@ func (c Controller) Update(ctx echo.Context) error {
 		},
 	})
 	if err != nil {
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	r := ResizeImgResp{
