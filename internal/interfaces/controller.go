@@ -3,7 +3,6 @@ package interfaces
 import (
 	"GoImageZip/internal/app"
 	"GoImageZip/internal/domain"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -59,7 +58,6 @@ func (c Controller) Resize(ctx echo.Context) error {
 	r := &ResizeImg{}
 	err := ctx.Bind(r)
 	if err != nil {
-		fmt.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
@@ -72,7 +70,6 @@ func (c Controller) Resize(ctx echo.Context) error {
 		},
 	})
 	if err != nil {
-		fmt.Println(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
@@ -139,7 +136,6 @@ func (c Controller) Update(ctx echo.Context) error {
 	u := &UpdateImg{}
 	err := ctx.Bind(u)
 	if err != nil {
-		fmt.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 

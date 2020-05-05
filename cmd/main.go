@@ -23,7 +23,7 @@ type AwsConf struct {
 	Token  string
 }
 
-func main () {
+func main() {
 	addr := flag.String("a", "localhost:8080", "-a <addr:port/>")
 	redisAddr := flag.String("r", "localhost:6379", "-r <addr:port/>")
 	redisPass := flag.String("p", "", "-p <redis password>")
@@ -45,11 +45,11 @@ func main () {
 
 	infrastrature.NewAWSConnector(s3.New(newAWSSession), *awsBucket, *awsEndPoint)
 
-	redisConn, err := infrastrature.NewRedisConnector(*redisAddr, *redisPass,*redisDB)
+	redisConn, err := infrastrature.NewRedisConnector(*redisAddr, *redisPass, *redisDB)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	repo := interfaces.NewRedisRepo(redisConn) // todo return nerror
+	repo := interfaces.NewRedisRepo(redisConn)
 
 	service := app.NewImageService(repo, &interfaces.ImageResize{}, func() *mocks.Clouder {
 		m := &mocks.Clouder{}
@@ -59,5 +59,3 @@ func main () {
 
 	interfaces.NewController(service).Run(*addr)
 }
-
-
