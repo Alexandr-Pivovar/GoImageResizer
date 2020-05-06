@@ -2,7 +2,6 @@ package main
 
 import (
 	"GoImageZip/internal/app"
-	"GoImageZip/internal/app/mocks"
 	"GoImageZip/internal/infrastrature"
 	"GoImageZip/internal/interfaces"
 	"flag"
@@ -10,18 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/stretchr/testify/mock"
 	"log"
 )
-
-type AwsConf struct {
-	Url    string
-	Bucket string
-	Region string
-	Id     string
-	Secret string
-	Token  string
-}
 
 func main() {
 	addr := flag.String("a", "localhost:8080", "-a <addr:port/>")
@@ -43,7 +32,7 @@ func main() {
 		Region:      aws.String(*awsRegeon),
 	})
 
-	infrastrature.NewAWSConnector(s3.New(newAWSSession), *awsBucket, *awsEndPoint)
+	awsConn := infrastrature.NewAWSConnector(s3.New(newAWSSession), *awsBucket, *awsEndPoint)
 
 	redisConn, err := infrastrature.NewRedisConnector(*redisAddr, *redisPass, *redisDB)
 	if err != nil {
@@ -51,11 +40,7 @@ func main() {
 	}
 	repo := interfaces.NewRedisRepo(redisConn)
 
-	service := app.NewImageService(repo, &interfaces.ImageResize{}, func() *mocks.Clouder {
-		m := &mocks.Clouder{}
-		m.On("Save", mock.Anything, mock.Anything).Return("http://domain", nil)
-		return m
-	}())
+	service := app.NewImageService(repo, &interfaces.ImageResize{}, awsConn)
 
 	infrastrature.NewController(service).Run(*addr)
 }
