@@ -1,5 +1,5 @@
 # Go Image Resizer
-
+Allows you to resize a png format image
 ### Resize image:
 
 >Method: Post
