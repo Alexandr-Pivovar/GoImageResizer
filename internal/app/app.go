@@ -10,7 +10,6 @@ import (
 
 var (
 	ErrCould  = errors.New("cloud error")
-	ErrResize = errors.New("resize error")
 	ErrStore  = errors.New("store error")
 	ErrDecode = errors.New("decode error")
 )
@@ -104,7 +103,6 @@ func (is ImageService) Resize(image domain.Image) (ii domain.ImageInfo, err erro
 	ii.Id = id
 	ii.Width = image.Width
 	ii.Height = image.Height
-	ii.Format = image.Format
 	ii.OriginUrl = originUrl
 	ii.ResizedUrl = resizedUrl
 
@@ -121,7 +119,7 @@ func (is ImageService) GetById(id string) (domain.ImageInfo, error) {
 	return is.repo.GetById(id)
 }
 
-// GetById gets item by id
+// Update updates item by id
 func (is ImageService) Update(imageInfo domain.ImageInfo) (domain.ImageInfo, error) {
 	im, err := is.repo.GetById(imageInfo.Id)
 	if err != nil {
@@ -138,7 +136,6 @@ func (is ImageService) Update(imageInfo domain.ImageInfo) (domain.ImageInfo, err
 		Param: domain.Param{
 			Height: imageInfo.Height,
 			Width:  imageInfo.Width,
-			Format: im.Format,
 		},
 	})
 	if err != nil {

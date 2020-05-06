@@ -1,14 +1,13 @@
 package domain
 
 type Image struct {
-	Data  []byte
+	Data []byte
 	Param
 }
 
 type Param struct {
 	Width  uint
 	Height uint
-	Format string
 }
 
 type ImageInfo struct {

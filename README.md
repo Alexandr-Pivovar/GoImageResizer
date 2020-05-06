@@ -13,7 +13,6 @@
   "data": "iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAIAAAAP3a", // base64 format
   "width": 800,
   "height": 600,
-  "format": "png"
 }
 ```
 > Response body:
@@ -73,7 +72,7 @@
 
 >Method: Post
 >
->Path:**/api/v1/update/{id}**
+>Path:**/api/v1/update**
 >
 > body:
 

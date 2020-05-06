@@ -48,7 +48,7 @@ func (a AWSConnector) Save(id string, image domain.Image) (string, error) {
 		return "", fmt.Errorf("%s: %s", app.ErrCould, err)
 	}
 
-	return a.url + "/" + id + "." + image.Format, nil
+	return a.url + "/" + id + ".png", nil
 }
 
 // NewAWSConnector is constructor, receives aws session, bucket and aws url,

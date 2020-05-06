@@ -57,5 +57,5 @@ func main() {
 		return m
 	}())
 
-	interfaces.NewController(service).Run(*addr)
+	infrastrature.NewController(service).Run(*addr)
 }

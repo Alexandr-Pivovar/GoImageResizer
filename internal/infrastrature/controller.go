@@ -1,4 +1,4 @@
-package interfaces
+package infrastrature
 
 import (
 	"GoImageZip/internal/app"
@@ -48,7 +48,7 @@ func (c Controller) Run(addr string) {
 	g.POST("/resize", c.Resize)
 	g.GET("/history", c.GetHistory)
 	g.GET("/history/:id", c.GetById)
-	g.POST("/history/:id", c.Update)
+	g.POST("/update", c.Update)
 
 	e.Logger.Fatal(e.Start(addr))
 }
@@ -66,7 +66,6 @@ func (c Controller) Resize(ctx echo.Context) error {
 		Param: domain.Param{
 			Height: r.Height,
 			Width:  r.Width,
-			Format: r.Format,
 		},
 	})
 	if err != nil {

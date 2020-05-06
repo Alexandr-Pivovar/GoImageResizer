@@ -40,7 +40,7 @@ func TestImageService_Resize(t *testing.T) {
 					Once()
 				return m
 			}(),
-			wantErr:  errors.New("resizer error"),
+			wantErr: errors.New("resizer error"),
 		},
 
 		{
@@ -61,7 +61,7 @@ func TestImageService_Resize(t *testing.T) {
 					Once()
 				return m
 			}(),
-			wantErr:  errors.New("cloud error"),
+			wantErr: errors.New("cloud error"),
 		},
 
 		{
@@ -71,7 +71,7 @@ func TestImageService_Resize(t *testing.T) {
 			resizer: func() *mocks.Resizer {
 				m := &mocks.Resizer{}
 				m.On("Do", domain.Image{}).
-					Return(domain.Image{Data:[]byte{100}}, nil).
+					Return(domain.Image{Data: []byte{100}}, nil).
 					Once()
 				return m
 			}(),
@@ -85,7 +85,7 @@ func TestImageService_Resize(t *testing.T) {
 					Once()
 				return m
 			}(),
-			wantErr:  errors.New("cloud error"),
+			wantErr: errors.New("cloud error"),
 		},
 
 		{
@@ -112,12 +112,11 @@ func TestImageService_Resize(t *testing.T) {
 			repo: func() *mocks.ImageRepository {
 				m := &mocks.ImageRepository{}
 				m.On("Create", domain.ImageInfo{
-					Id: "1",
-					OriginUrl: "x.com",
+					Id:         "1",
+					OriginUrl:  "x.com",
 					ResizedUrl: "z.com",
 					Param: domain.Param{
-						Format: "png",
-						Width: 10,
+						Width:  10,
 						Height: 15,
 					},
 				}).
@@ -128,22 +127,20 @@ func TestImageService_Resize(t *testing.T) {
 			imageParam: domain.Image{
 				Data: nil,
 				Param: domain.Param{
-					Width: 10,
+					Width:  10,
 					Height: 15,
-					Format: "png",
 				},
 			},
 			wantImage: domain.ImageInfo{
 				Id: "1",
 				Param: domain.Param{
-					Width: 10,
+					Width:  10,
 					Height: 15,
-					Format: "png",
 				},
-				OriginUrl: "x.com",
+				OriginUrl:  "x.com",
 				ResizedUrl: "z.com",
 			},
-			wantErr:  errors.New("repo error"),
+			wantErr: errors.New("repo error"),
 		},
 	}
 
@@ -187,13 +184,13 @@ func TestImageService_GetHistory(t *testing.T) {
 	}{
 		{
 			testName: "Should return error if repo.GetHistory func return error",
-			repo: func() *mocks.ImageRepository{
+			repo: func() *mocks.ImageRepository {
 				m := &mocks.ImageRepository{}
 				m.On("GetHistory").
 					Return(nil, errors.New("repo error"))
 				return m
 			}(),
-			wantErr:  errors.New("repo error"),
+			wantErr: errors.New("repo error"),
 		},
 	}
 
@@ -320,9 +317,7 @@ func TestImageService_Update(t *testing.T) {
 				m.On("GetById", "1").
 					Return(domain.ImageInfo{
 						OriginUrl: "x.com",
-						Param: domain.Param{
-							Format: "png",
-						},
+						Param:     domain.Param{},
 					}, nil).
 					Once()
 				return m
@@ -341,7 +336,6 @@ func TestImageService_Update(t *testing.T) {
 					Param: domain.Param{
 						Width:  15,
 						Height: 10,
-						Format: "png",
 					},
 				}).
 					Return(domain.Image{}, errors.New("resizer error")).
@@ -394,7 +388,6 @@ func TestImageService_Update(t *testing.T) {
 						Param: domain.Param{
 							Width:  10,
 							Height: 12,
-							Format: "png",
 						},
 					}, nil).Once()
 				m.On("Update", domain.ImageInfo{
@@ -404,7 +397,6 @@ func TestImageService_Update(t *testing.T) {
 					Param: domain.Param{
 						Width:  0,
 						Height: 0,
-						Format: "png",
 					},
 				}).
 					Return(errors.New("cloud error")).Once()
@@ -434,7 +426,6 @@ func TestImageService_Update(t *testing.T) {
 				Param: domain.Param{
 					Width:  0,
 					Height: 0,
-					Format: "png",
 				},
 			},
 			wantErr: errors.New("cloud error"),
